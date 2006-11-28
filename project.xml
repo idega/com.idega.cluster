@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:j="jelly:core">
+  <extend>${base.project.dir}/base-dependencies.xml</extend>
+  <name>idegaWeb Cluster</name>
+  <artifactId>com.idega.cluster</artifactId>
+  <currentVersion>1.0-SNAPSHOT</currentVersion>
+  <inceptionYear>2006</inceptionYear>
+  <shortDescription>add on for clustering</shortDescription>
+  <issueTrackingUrl>http://issues.idega.is</issueTrackingUrl>
+  <versions>
+  </versions>
+  <branches/>
+  <developers>
+    <developer>
+      <id>thomas</id>
+      <name>Thomas Hilbig</name>
+      <email>thomas@idega.is</email>
+      <organization>idega software</organization>
+      <roles/>
+    </developer>
+  </developers>
+  <dependencies>
+    <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>com.idega.core</artifactId>
+      <version>3.1.4</version>
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+  </dependencies>
+</project>
