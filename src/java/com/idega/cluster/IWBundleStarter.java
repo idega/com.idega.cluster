@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.1 2006/11/29 13:59:24 thomas Exp $
+ * $Id: IWBundleStarter.java,v 1.2 2006/12/11 15:48:29 thomas Exp $
  * Created on 3.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,6 +9,7 @@
  */
 package com.idega.cluster;
 
+import java.io.File;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWBundleStartable;
 
@@ -17,10 +18,10 @@ import com.idega.idegaweb.IWBundleStartable;
 
 /**
  * 
- *  Last modified: $Date: 2006/11/29 13:59:24 $ by $Author: thomas $
+ *  Last modified: $Date: 2006/12/11 15:48:29 $ by $Author: thomas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 
@@ -28,7 +29,23 @@ public class IWBundleStarter implements IWBundleStartable {
 	 * @see com.idega.idegaweb.IWBundleStartable#start(com.idega.idegaweb.IWBundle)
 	 */
 	public void start(IWBundle starterBundle) {
-		System.out.println("hello that's me");
+		if (true) {
+			return;
+		}
+		System.out.println("hello that's me"); 
+		File home = new File("/home/thomas/workspaces/workspace_ePlatform_rvk_20061127/applications/reykjavik/target/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties");
+		//File home = new File("/home/thomas/workspaces/targets/targetA3/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties");
+        try {
+        	System.setProperty("JXTA_HOME", home.getCanonicalPath());
+        }
+        catch (Exception ex) {
+        	System.out.println("Hello");
+        }
+    	//JxtaConfig.main(null);
+		//SimpleJxtaApp.main(null);
+    	//DiscoveryDemo.main(null);
+        //PipeListener.main(null);
+        PipeExample.main(null);
 		
 	}
 
