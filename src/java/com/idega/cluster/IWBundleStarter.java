@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.2 2006/12/11 15:48:29 thomas Exp $
+ * $Id: IWBundleStarter.java,v 1.3 2007/01/12 15:43:25 thomas Exp $
  * Created on 3.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,7 +9,17 @@
  */
 package com.idega.cluster;
 
-import java.io.File;
+import com.idega.cluster.cache.listener.ClusterCacheManagerListener;
+import com.idega.cluster.cache.listener.ClusterCacheMapNotifier;
+import com.idega.cluster.event.MethodCallEventConnector;
+import com.idega.cluster.net.message.ApplicationMessenger;
+import com.idega.cluster.net.message.ReceiveFilter;
+import com.idega.cluster.net.message.SimpleMessage;
+import com.idega.cluster.net.message.impl.IgnoreAlreadyReceivedMessage;
+import com.idega.cluster.net.message.impl.IgnoreOwnMessage;
+import com.idega.cluster.net.message.impl.SimpleMessageImpl;
+import com.idega.cluster.net.pipe.ApplicationPeerGroupPipe;
+import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWBundleStartable;
 
@@ -18,34 +28,95 @@ import com.idega.idegaweb.IWBundleStartable;
 
 /**
  * 
- *  Last modified: $Date: 2006/12/11 15:48:29 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/12 15:43:25 $ by $Author: thomas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class IWBundleStarter implements IWBundleStartable {
+	
+	private ApplicationMessenger applicationMessenger = null;
 
 	/* (non-Javadoc)
 	 * @see com.idega.idegaweb.IWBundleStartable#start(com.idega.idegaweb.IWBundle)
 	 */
 	public void start(IWBundle starterBundle) {
-		if (true) {
-			return;
+		IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
+		try {
+			applicationMessenger = new ApplicationPeerGroupPipe();
+			if (! applicationMessenger.start(iwac)) {
+				applicationMessenger = null;
+				System.err.println("[IWBundleStarter] Could not start an application messenger");
+				return;
+			}
 		}
-		System.out.println("hello that's me"); 
-		File home = new File("/home/thomas/workspaces/workspace_ePlatform_rvk_20061127/applications/reykjavik/target/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties");
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// testing
+		String sender = applicationMessenger.getSender();
+		SimpleMessage messageToSend = SimpleMessageImpl.getInstanceForSending(sender,"test");
+		applicationMessenger.sendMessage(messageToSend);
+		
+		// registering filters for receiving
+		ReceiveFilter receiveFilter = new IgnoreOwnMessage(sender);
+		applicationMessenger.addReceiveFilter(receiveFilter);
+		applicationMessenger.addReceiveFilter(new IgnoreAlreadyReceivedMessage());
+		
+		// registering listeners that are sending messages
+		ClusterCacheManagerListener.getInstanceAddedToEhCache(applicationMessenger, iwac);
+		
+		// registering listeners that are getting messages
+		ClusterCacheMapNotifier.getInstanceAddedToIWCacheManager2(applicationMessenger, iwac);
+		
+		// registering to event system
+		MethodCallEventConnector connector = new MethodCallEventConnector();
+		connector.connectToMethodCallEventSystem(applicationMessenger);
+
+		
+		// 
+		//File home = new File("/Users/thomas/workspaces/workspace_ePlatform_rvk_20061127/applications/reykjavik/target/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties");
+		
+		//File home = new File("/Users/thomas/workspaces/targets/tomcat2/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties/");
+//		try {
+//			System.out.println("Home of JXTA: " + home.getCanonicalPath());
+//		}
+//		catch (IOException ex) {
+//		}
+		
+		
 		//File home = new File("/home/thomas/workspaces/targets/targetA3/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties");
-        try {
-        	System.setProperty("JXTA_HOME", home.getCanonicalPath());
-        }
-        catch (Exception ex) {
-        	System.out.println("Hello");
-        }
-    	//JxtaConfig.main(null);
+//        try {
+//
+//        	JxtaConfig.main(null);
+//        	/*
+//        	 * Register the default Edge platform configurator
+//        	 */
+//        	//AbstractConfigurator.register(ApplicationJxtaNetConfigurator.class);
+//        	//PeerGroupFactory.setConfiguratorClass(ApplicationJxtaNetConfigurator.class);
+//        	IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
+//            PeerGroup defaultPeerGroup = PeerGroupFactory.newNetPeerGroup();
+//            DiscoveryService discovery = defaultPeerGroup.getDiscoveryService();
+////          this step helps when running standalone (local sub-net without any redezvous setup)
+//            discovery.getRemoteAdvertisements(null, DiscoveryService.ADV, null, null, 1, null);
+//            ApplicationPeerGroup applicationPeerGroup = new ApplicationPeerGroup(defaultPeerGroup, iwac);
+//            applicationPeerGroup.toString();
+//            ApplicationPeerGroupPipe applicationPeerGroupPipe = new ApplicationPeerGroupPipe(applicationPeerGroup, iwac);
+//            SimpleMessage messageToSend = new SimpleMessage("cache","hello world");
+//            applicationPeerGroupPipe.sendMessage(messageToSend);
+//        }
+//        catch (Exception ex) {
+//        	System.out.println("Hello");
+//        }
+//    	//JxtaConfig.main(null);
 		//SimpleJxtaApp.main(null);
     	//DiscoveryDemo.main(null);
         //PipeListener.main(null);
-        PipeExample.main(null);
+        //PipeExample.main(null);
+
+        
+        //JoinDemo.main(null);
 		
 	}
 
@@ -53,6 +124,11 @@ public class IWBundleStarter implements IWBundleStartable {
 	 * @see com.idega.idegaweb.IWBundleStartable#stop(com.idega.idegaweb.IWBundle)
 	 */
 	public void stop(IWBundle starterBundle) {
+		if (applicationMessenger != null) {
+			IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
+			applicationMessenger.stop(iwac);
+		}
+		applicationMessenger = null;
 		// TODO Auto-generated method stub
 	}
 }

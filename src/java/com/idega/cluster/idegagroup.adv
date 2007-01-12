@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jxta:PGA>
+<jxta:PGA xmlns:jxta="http://jxta.org">
+	<GID>
+		urn:jxta:uuid-C8C3F687ABD54B4EA46DB7DDCC35C31202
+	</GID>
+	<MSID>
+		urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE000000010306
+	</MSID>
+	<Name>
+		Idega Group
+	</Name>
+	<Desc>
+		testing group adv
+	</Desc>
+</jxta:PGA>

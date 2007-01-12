@@ -31,5 +31,36 @@
         <eclipse.dependency>true</eclipse.dependency>
       </properties>
     </dependency>
+    <dependency>
+      <groupId>ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>1.2</version>
+      <type>jar</type>
+      <url>http://ehcache.sourceforge.net/</url>
+      <properties>
+      <!-- already included in core bundle -->
+        <idegaweb.bundle.include>false</idegaweb.bundle.include>
+      </properties>
+    </dependency>
+        <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>net.jxta</artifactId>
+      <version>SNAPSHOT</version>
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+            <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+      <type>jar</type>
+      <url>http://logging.apache.org/log4j/</url>
+      <properties>
+        <idegaweb.bundle.include>false</idegaweb.bundle.include>
+      </properties>
+    </dependency>
   </dependencies>
 </project>

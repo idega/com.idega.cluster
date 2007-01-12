@@ -52,7 +52,7 @@ package com.idega.cluster;
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  *
- *  $Id: PipeExample.java,v 1.1 2006/12/11 15:49:08 thomas Exp $
+ *  $Id: PipeExample.java,v 1.2 2007/01/12 15:43:40 thomas Exp $
  */
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -203,7 +203,9 @@ public class PipeExample implements
         discovery = netPeerGroup.getDiscoveryService();
         System.out.println("Reading in pipexample.adv");
         try {
-            FileInputStream is = new FileInputStream("/home/thomas/workspaces/targets/targetA3/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties/pipexample.adv");
+        	FileInputStream is = new FileInputStream("/Users/thomas/workspaces/workspace_ePlatform_rvk_20061127/applications/reykjavik/target/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties/pipexample.adv");
+
+            //FileInputStream is = new FileInputStream("/Users/thomas/workspaces/targets/targetA3/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties/pipexample.adv");
             pipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, is);
             is.close();
         } catch (Exception e) {

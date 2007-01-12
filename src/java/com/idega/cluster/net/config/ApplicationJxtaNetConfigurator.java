@@ -1,73 +1,70 @@
 /*
- * $Id: JxtaConfig.java,v 1.2 2007/01/12 15:43:40 thomas Exp $
- * Created on Nov 30, 2006
+ * $Id: ApplicationJxtaNetConfigurator.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * Created on Dec 27, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
  *
  * This software is the proprietary information of Idega hf.
  * Use is subject to license terms.
  */
-package com.idega.cluster;
+package com.idega.cluster.net.config;
 
-
-	
-
-/*
- * JxtaConfig.java
- *
- * Created on June 5, 2004, 3:26 PM
- */
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
-import java.util.*;
-import sun.rmi.transport.tcp.TCPTransport;
-
+import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import com.idega.cluster.JxtaConfig;
+import com.idega.cluster.MD5ID;
+import com.idega.idegaweb.ApplicationProductInfo;
+import com.idega.idegaweb.IWApplicationContext;
+import com.idega.idegaweb.IWMainApplication;
 import net.jxta.exception.ConfiguratorException;
+import net.jxta.ext.config.AbstractConfigurator;
 import net.jxta.ext.config.Address;
 import net.jxta.ext.config.Configurator;
-import net.jxta.ext.config.HttpTransport;
 import net.jxta.ext.config.MulticastAddress;
-import net.jxta.ext.config.TcpTransport;
-import net.jxta.ext.config.TcpTransportAddress;
-
-
 import net.jxta.ext.config.Profile;
+import net.jxta.ext.config.TcpTransportAddress;
+import net.jxta.impl.protocol.PlatformConfig;
+
+
 /**
- *
+ * 
+ *  Last modified: $Date: 2007/01/12 15:42:36 $ by $Author: thomas $
+ * 
+ * @author <a href="mailto:thomas@idega.com">thomas</a>
  * @author  danielbrookshier
+ * 
+ * @version $Revision: 1.1 $
  */
-public class JxtaConfig{
+public class ApplicationJxtaNetConfigurator {
+
     private final static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(JxtaConfig.class.getName());
     private static final String jxtaCoreFile = "jxta_core.properties";
     
-    protected Configurator configurator;
-    protected String peerName;
-    protected String description;
-    public static void main(String args[]){
-        try{
-            //File home = new File("/home/thomas/workspaces/targets/targetA3/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties");
-            File home = null; //new File("/home/thomas/workspaces/workspace_ePlatform_rvk_20061127/applications/reykjavik/target/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties");
-            LOG.setLevel(org.apache.log4j.Level.INFO);
-            JxtaConfig jxtaConfig = new JxtaConfig("defaul@default.com","id","password","desc",home);
-            
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-    public static void writeConfig(String email, String id, String password){
-        new JxtaConfig( email,  id,  password);
-    }
-   private JxtaConfig(String email, String id, String password){
-        this(email,  id,  password, "default description",new File("."));
-        LOG.setLevel(org.apache.log4j.Level.INFO);
-        
-    }
     
-    public JxtaConfig(String email, String id, String password, String description, File jxtaHome) {
+    public static void createPlatformConfig(IWApplicationContext iwac) {
+    	// set JXTA home, should be private!
+    	IWMainApplication mainApplication = iwac.getIWMainApplication();
+    	File jxtaHome = new File(mainApplication.getPropertiesRealPath());
+      	System.setProperty("JXTA_HOME", jxtaHome.getPath());
+      	// 
+      	ApplicationProductInfo productInfo = mainApplication.getProductInfo();
+      	String peerName = productInfo.getName();
+      	
+      	ApplicationJxtaNetConfigurator applicationJxtaNetConfigurator = 
+      		new ApplicationJxtaNetConfigurator(peerName, "password", "secretpassword", jxtaHome);
+    }
+
+    
+    public ApplicationJxtaNetConfigurator(String peerName, String id, String password, File jxtaHome) {
         LOG.setLevel(org.apache.log4j.Level.INFO);
-        setJxtaHome(jxtaHome);
-        
+      
         Properties defaultProps = new Properties();
         try{
             FileInputStream in = new FileInputStream(jxtaCoreFile);
@@ -90,9 +87,6 @@ public class JxtaConfig{
         //createPrivateGroup(infraBase,infraSeed,infraName,infraDesc);
         
         try{
-            this.peerName = email;
-            this.description = description;
-            
             // Need to set this environment variable before using Configurator,
             // otherwise the Configurator throws a null pointer exception.
             jxtaHome = new File(System.getProperty("JXTA_HOME")); 
@@ -100,11 +94,16 @@ public class JxtaConfig{
             //LOG.info("JXTA_HOME="+jxtaHome.getCanonicalPath());
             Profile profile = Profile.DEFAULT; // File("./jxta_profile.xml").toURL());//"./superPeer.xml").toURL());//
             
-            configurator =  new Configurator(jxtaHome.toURI(),profile);
-            configurator.setName("gespenst"); //by thi
+            Configurator configurator =  new Configurator(jxtaHome.toURI(),profile);
+            configurator.setName(peerName); //by thi
             configurator.setSecurity(id, password);
             configurator.setRelaysDiscovery(false);
             configurator.setRendezVousDiscovery(false);
+            
+            //testttesttest
+            configurator.setRelay(false);
+
+            // testtesttest
 
             LOG.info(">>>>>> save the config");
 
@@ -233,58 +232,12 @@ public class JxtaConfig{
             }
            
 
-            configurator= null;
+
         }catch(Exception e ){
             LOG.error("Error initializing configuration",e);
         }
     }
-    public void createPrivateGroup(String infraBase, String infraSeed, String myNameForNetGroup,String mydesc){
-        getJxtaHome().mkdirs();
-        File file = new File(getJxtaHome(),  "config.properties");
-        if (! file.exists()) {
-        	try {
-        		file.createNewFile();
-        	}
-        	catch (Exception ex) {
-        		System.out.println(ex);
-        	}
-        }
-        
-        
-        
-        net.jxta.peergroup.PeerGroupID pgID =  MD5ID.createInftrastructurePeerGroupID(infraBase,infraSeed);
-        String id = pgID.toString();
-        //id = id.substring(id.indexOf("jxta:")+5); // by thi
-        LOG.info("NetPeerGroupID="+id);
-        try{
-            FileWriter writer = new FileWriter(file);
-            writer.write("NetPeerGroupID="+id+"\n");
-            writer.write("NetPeerGroupName="+myNameForNetGroup+"\n");
-            writer.write("NetPeerGroupDesc="+mydesc+"\n");
-            writer.close();
-        }catch(IOException ioe){
-            LOG.error("Unable to create config.properties",ioe);
-        }
-    }
-    /**
-     * Delete Jxta home folder
-     * @return   True if the home folder was completely removed.
-     */
-//    public boolean deleteConfig() {
-//        LOG.warn("Deleting the configuration?????");
-//        return FileUtil.deleteDirTree(getJxtaHome());
-//    }
-//    boolean configExists(){
-//        return new File(configurator.getHome(),"PlatformConfig").exists();
-//    }
-    private File jxtaHome;
-    public File getJxtaHome(){
-        return jxtaHome;
-    }
-    
-    public void setJxtaHome(File jxtaHome) {
-        this.jxtaHome = jxtaHome;
-    }
-}
+ }
+
 
 
