@@ -1,5 +1,5 @@
 /*
- * $Id: JxtaPlatformConfigurator.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * $Id: JxtaPlatformConfigurator.java,v 1.2 2007/01/20 21:55:17 thomas Exp $
  * Created on Dec 27, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -12,10 +12,12 @@ package com.idega.cluster.net.config;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
+import net.jxta.ext.config.Address;
 import net.jxta.ext.config.Configurator;
 import net.jxta.ext.config.MulticastAddress;
 import net.jxta.ext.config.Profile;
@@ -32,12 +34,12 @@ import com.idega.util.FileUtil;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/12 15:42:36 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/20 21:55:17 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
  * @author  danielbrookshier
  * 
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class JxtaPlatformConfigurator {
 
@@ -46,12 +48,12 @@ public class JxtaPlatformConfigurator {
     
     
     public static void createPlatformConfig(IWApplicationContext iwac) {
-    	// set JXTA home, should be private!
     	IWMainApplication mainApplication = iwac.getIWMainApplication();
-    	File jxtaHome = new File(mainApplication.getPropertiesRealPath(), "jxtaHome");
+    	// set JXTA home, should be private!
+      	File jxtaHome = defineJxtaHome(mainApplication);
+      	// clean jxtaHome
+    	prepareJxtaHome(jxtaHome);
     	
-      	System.setProperty("JXTA_HOME", jxtaHome.getAbsolutePath());
-      	// 
       	ApplicationProductInfo productInfo = mainApplication.getProductInfo();
       	String peerName = productInfo.getName();
       	
@@ -59,6 +61,20 @@ public class JxtaPlatformConfigurator {
       		new JxtaPlatformConfigurator(peerName, "password", "secretpassword", jxtaHome, iwac);
     }
 
+    public static File defineJxtaHome(IWMainApplication mainApplication) {
+
+    	File jxtaHome = new File(mainApplication.getPropertiesRealPath(), "jxtaHome");
+    	
+      	System.setProperty("JXTA_HOME", jxtaHome.getAbsolutePath());
+      	return jxtaHome;
+    }
+    
+    public static void prepareJxtaHome(File jxtaHome) {
+    	String jxtaPath = jxtaHome.getAbsolutePath();
+    	FileUtil.createFolder(jxtaPath);
+    	FileUtil.deleteContentOfFolder(jxtaHome);
+    }
+    
     
     public JxtaPlatformConfigurator(String peerName, String id, String password, File jxtaHome, IWApplicationContext iwac) {
         LOG.setLevel(org.apache.log4j.Level.INFO);
@@ -85,7 +101,7 @@ public class JxtaPlatformConfigurator {
 //        //createPrivateGroup(infraBase,infraSeed,infraName,infraDesc);
         
         try{
-        	prepareJxtaHome(jxtaHome);
+
         	
             // change to private net
             PeerGroupID infrastructurePeerGroupID = IDApplicationFactory.getInfrastructurePeerGroupID(iwac);
@@ -136,18 +152,45 @@ public class JxtaPlatformConfigurator {
 
             
             
-            configurator.clearRendezVous();
-            configurator.clearRelays();
+//            configurator.clearRendezVous();
+//            configurator.clearRelays();
+//            
+//             // get own ip address
+//            InetAddress localHost = InetAddress.getLocalHost();
+//            String address = localHost.getHostAddress();
             
-             // get own ip address
-            InetAddress localHost = InetAddress.getLocalHost();
-            String address = localHost.getHostAddress();
-            
-            configurator.addRendezVous(new URI("http",address, null, null));
-            configurator.addRelay(new URI("http",address, null, null));
+//            try {
+//            	  URL url = new URL("http://157.157.121.37:9150");
+//            	  HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//            	  con.setFollowRedirects(true);
+//            	  con.setInstanceFollowRedirects(false);
+//            	  con.connect();
+//            	 
+//            	  while (String.valueOf(con.getResponseCode()).startsWith("3")) {
+//            	     String theLocation = con.getHeaderField("Location");
+//            	     con.disconnect();
+//            	     url = new URL(theLocation);
+//            	     con = (HttpURLConnection) url.openConnection();
+//            	     con.setFollowRedirects(true);
+//            	     con.setInstanceFollowRedirects(false);
+//            	     con.connect();
+//            	     }
+//            	     /** at this point you are located at the last(target)page of
+//            	         redirection chain */
+//            	 
+//            	} catch (Exception ex) { ex.printStackTrace(); }
+
+//            
+            //URI uri = new URI("http",null,"192.168.76.128",9700,null,null, null);
+            //URI uri = new URI("http",null,"157.157.121.37",9700,null,null, null);
+            //configurator.addRendezVous(uri);//new URI("http", "157.157.121.37:9150", null, null));
+//            configurator.addRelay(new URI("http",address, null, null));
             
             configurator.setRelaysDiscovery(true);
             configurator.setRendezVousDiscovery(true);
+            
+            configurator.setRendezVous(true);
+            //configurator.setRendezVousAutoStart(3000);
             
             //testttesttest
 //            configurator.setRelayIncoming(false);
@@ -232,6 +275,7 @@ public class JxtaPlatformConfigurator {
                     if (JxtaConfigSettings.USE_MULTICAST_TCP_TRANSPORT) {
                     	multicast.setMulticast(true);
                     }
+                    
                     LOG.info("  isEnabled:"+data.isEnabled());
                     LOG.info("  isIncoming:"+data.isIncoming());
                     LOG.info("  isOutgoing:"+data.isOutgoing());
@@ -247,17 +291,19 @@ public class JxtaPlatformConfigurator {
                 }
                 if (list.get(i) instanceof net.jxta.ext.config.HttpTransport){
                     net.jxta.ext.config.HttpTransport data = (net.jxta.ext.config.HttpTransport)list.get(i);
-//                    Address address = (Address) data.getAddresses().get(0);
-//                    URI uri = address.getAddress();
-//                    String scheme = uri.getScheme();
-//                    String userInfo = uri.getUserInfo();
-//                    String host = uri.getHost();
-//                    int port = 9703;
-//                    String path = uri.getPath();
-//                    String query = uri.getQuery();
-//                    String fragment = uri.getFragment();
-//                    URI newURI = new URI(scheme,userInfo,host,port, path, query,fragment);
-//                    address.setAddress(newURI);
+                    if (JxtaConfigSettings.SET_HTTP_TRANSPORT_PORT_80) {
+	                    Address address = (Address) data.getAddresses().get(0);
+	                    URI uri = address.getAddress();
+	                    String scheme = uri.getScheme();
+	                    String userInfo = uri.getUserInfo();
+	                    String host = uri.getHost();
+	                    int port = 80;
+	                    String path = uri.getPath();
+	                    String query = uri.getQuery();
+	                    String fragment = uri.getFragment();
+	                    URI newURI = new URI(scheme,userInfo,host,port, path, query,fragment);
+	                    address.setAddress(newURI);
+                    }
                     LOG.info("  isEnabled:"+data.isEnabled());
                     LOG.info("  isIncoming:"+data.isIncoming());
                     LOG.info("  isOutgoing:"+data.isOutgoing());
@@ -290,11 +336,7 @@ public class JxtaPlatformConfigurator {
         }
     }
     
-    private void prepareJxtaHome(File jxtaHome) {
-    	String jxtaPath = jxtaHome.getAbsolutePath();
-    	FileUtil.createFolder(jxtaPath);
-    	FileUtil.deleteContentOfFolder(jxtaHome);
-    }
+
     
     private void writeConfigProperties(File jxtaHome, String netPeerGroupID, String netPeerGroupName, String netPeerGroupDesc) throws IOException {
     	File file = new File(jxtaHome,"config.properties");

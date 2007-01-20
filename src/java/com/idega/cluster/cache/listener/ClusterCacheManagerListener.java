@@ -1,5 +1,5 @@
 /*
- * $Id: ClusterCacheManagerListener.java,v 1.1 2007/01/12 15:42:35 thomas Exp $
+ * $Id: ClusterCacheManagerListener.java,v 1.2 2007/01/20 21:53:43 thomas Exp $
  * Created on Dec 29, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -12,26 +12,25 @@ package com.idega.cluster.cache.listener;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import com.idega.cluster.net.message.ApplicationMessenger;
-import com.idega.idegaweb.IWApplicationContext;
 
 
 /**
  * 
- *  Last modified: $Date: 2007/01/12 15:42:35 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/20 21:53:43 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ClusterCacheManagerListener implements CacheManagerEventListener {
 	
-	public static ClusterCacheManagerListener getInstanceAddedToEhCache(ApplicationMessenger applicationMessenger, IWApplicationContext iwac) {
+	public static ClusterCacheManagerListener getInstanceAddedToEhCache(ApplicationMessenger applicationMessenger) {
 		// cache manager is a singleton
 		CacheManager cacheManager = CacheManager.getInstance();
 		// first add a listener
 		ClusterCacheManagerListener clusterCacheManagerListener = null;
 		CacheManagerEventListener cacheManagerEventListener = cacheManager.getCacheManagerEventListener();
 		if (cacheManagerEventListener == null) {
-			clusterCacheManagerListener = new ClusterCacheManagerListener(applicationMessenger, iwac);
+			clusterCacheManagerListener = new ClusterCacheManagerListener(applicationMessenger);
 			cacheManager.setCacheManagerEventListener(clusterCacheManagerListener);
 		}
 		else {
@@ -50,11 +49,9 @@ public class ClusterCacheManagerListener implements CacheManagerEventListener {
 	}
 
 	private ApplicationMessenger applicationMessenger = null;
-	private IWApplicationContext iwac;
 	
-	public ClusterCacheManagerListener(ApplicationMessenger applicationMessenger, IWApplicationContext iwac) {
+	public ClusterCacheManagerListener(ApplicationMessenger applicationMessenger) {
 		this.applicationMessenger = applicationMessenger;
-		this.iwac = iwac;
 	}
 	
 	/* (non-Javadoc)
@@ -75,7 +72,7 @@ public class ClusterCacheManagerListener implements CacheManagerEventListener {
 	}
 	
 	private void setListener(String cacheName) {
-		ClusterCacheMapListenerSetter clusterCacheMapListenerSetter = new ClusterCacheMapListenerSetter(cacheName,applicationMessenger,iwac);
+		ClusterCacheMapListenerSetter clusterCacheMapListenerSetter = new ClusterCacheMapListenerSetter(cacheName,applicationMessenger);
 		Thread setterThread = new Thread(clusterCacheMapListenerSetter);
 		// set as daemon, if server chrashes.....
 		setterThread.setDaemon(true);

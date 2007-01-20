@@ -1,5 +1,5 @@
 /*
- * $Id: ApplicationJxtaNetConfigurator.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * $Id: ApplicationJxtaNetConfigurator.java,v 1.2 2007/01/20 21:55:19 thomas Exp $
  * Created on Dec 27, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -35,12 +35,12 @@ import net.jxta.impl.protocol.PlatformConfig;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/12 15:42:36 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/20 21:55:19 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
  * @author  danielbrookshier
  * 
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ApplicationJxtaNetConfigurator {
 
@@ -179,7 +179,7 @@ public class ApplicationJxtaNetConfigurator {
                     TcpTransportAddress address = (TcpTransportAddress) data.getAddresses().get(0);
                     MulticastAddress multicast = (MulticastAddress) address.getMulticastAddresses().get(0);
                     // multicast default switched off - therefore switch it on
-                    multicast.setMulticast(true);
+                    //multicast.setMulticast(true);
                     LOG.info("  isEnabled:"+data.isEnabled());
                     LOG.info("  isIncoming:"+data.isIncoming());
                     LOG.info("  isOutgoing:"+data.isOutgoing());

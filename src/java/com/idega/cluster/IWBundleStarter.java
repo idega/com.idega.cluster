@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.3 2007/01/12 15:43:25 thomas Exp $
+ * $Id: IWBundleStarter.java,v 1.4 2007/01/20 21:55:20 thomas Exp $
  * Created on 3.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -9,9 +9,11 @@
  */
 package com.idega.cluster;
 
+import java.io.File;
 import com.idega.cluster.cache.listener.ClusterCacheManagerListener;
 import com.idega.cluster.cache.listener.ClusterCacheMapNotifier;
 import com.idega.cluster.event.MethodCallEventConnector;
+import com.idega.cluster.net.config.JxtaPlatformConfigurator;
 import com.idega.cluster.net.message.ApplicationMessenger;
 import com.idega.cluster.net.message.ReceiveFilter;
 import com.idega.cluster.net.message.SimpleMessage;
@@ -28,19 +30,50 @@ import com.idega.idegaweb.IWBundleStartable;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/12 15:43:25 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/20 21:55:20 $ by $Author: thomas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 	
 	private ApplicationMessenger applicationMessenger = null;
 
+	public void start(IWBundle starterBundle) {
+		if (false) {
+			// for production
+			startPrivateNet(starterBundle);
+		}
+		
+		if (true) {
+			// for testing 
+			startPipeListener(starterBundle);
+		}
+		
+		if (true) {
+			// for testing
+			startPipeExample(starterBundle);
+		}
+	}
+	
+	public void startPipeExample(IWBundle starterBundle) {
+		IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
+		File jxtaHome = JxtaPlatformConfigurator.defineJxtaHome(iwac.getIWMainApplication());
+		JxtaPlatformConfigurator.prepareJxtaHome(jxtaHome);
+		PipeExample.main(null);
+	}
+	
+	public void startPipeListener(IWBundle starterBundle) {
+		IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
+		File jxtaHome = JxtaPlatformConfigurator.defineJxtaHome(iwac.getIWMainApplication());
+		JxtaPlatformConfigurator.prepareJxtaHome(jxtaHome);
+		PipeListener.main(null);
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.idega.idegaweb.IWBundleStartable#start(com.idega.idegaweb.IWBundle)
 	 */
-	public void start(IWBundle starterBundle) {
+	public void startPrivateNet(IWBundle starterBundle) {
 		IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
 		try {
 			applicationMessenger = new ApplicationPeerGroupPipe();
@@ -65,10 +98,10 @@ public class IWBundleStarter implements IWBundleStartable {
 		applicationMessenger.addReceiveFilter(new IgnoreAlreadyReceivedMessage());
 		
 		// registering listeners that are sending messages
-		ClusterCacheManagerListener.getInstanceAddedToEhCache(applicationMessenger, iwac);
+		ClusterCacheManagerListener.getInstanceAddedToEhCache(applicationMessenger);
 		
 		// registering listeners that are getting messages
-		ClusterCacheMapNotifier.getInstanceAddedToIWCacheManager2(applicationMessenger, iwac);
+		ClusterCacheMapNotifier.getInstanceAddedToEhCache(applicationMessenger);
 		
 		// registering to event system
 		MethodCallEventConnector connector = new MethodCallEventConnector();

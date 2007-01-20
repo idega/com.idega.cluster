@@ -1,5 +1,5 @@
 /*
- * $Id: SimpleMessageOutputListener.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * $Id: SimpleMessageOutputListener.java,v 1.2 2007/01/20 21:55:20 thomas Exp $
  * Created on Dec 28, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -10,6 +10,7 @@
 package com.idega.cluster.net.pipe;
 
 import java.io.IOException;
+import net.jxta.discovery.DiscoveryService;
 import net.jxta.pipe.OutputPipe;
 import net.jxta.pipe.OutputPipeEvent;
 import net.jxta.pipe.OutputPipeListener;
@@ -24,25 +25,28 @@ import com.idega.cluster.net.message.SimpleMessage;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/12 15:42:36 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/20 21:55:20 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SimpleMessageOutputListener implements OutputPipeListener, RendezvousListener, Runnable {
 	
 	private SimpleMessage messageToSend = null;
 	private RendezVousService rendezVousService = null;
+	private DiscoveryService discoveryService = null;
 	private PipeService pipeService = null;
 	private PipeAdvertisement pipeAdvertisement = null;
 	
 	public SimpleMessageOutputListener(
 			SimpleMessage messageToSend, 
 			RendezVousService rendezVousService,
+			DiscoveryService discoveryService,
 			PipeService pipeService, 
 			PipeAdvertisement pipeAdvertisement) {
 		this.messageToSend = messageToSend;
 		this.rendezVousService = rendezVousService;
+		this.discoveryService = discoveryService;
 		this.pipeService = pipeService;
 		this.pipeAdvertisement = pipeAdvertisement;
 	}
@@ -59,6 +63,10 @@ public class SimpleMessageOutputListener implements OutputPipeListener, Rendezvo
 
 	private synchronized void createOutputPipe() {
 		try {
+            // this step helps when running standalone (local sub-net without any redezvous setup)
+			if (JxtaConfigSettings.USE_RENDEZVOUS_SERVICE) {
+				discoveryService.getRemoteAdvertisements(null, DiscoveryService.ADV, null, null, 1, null);
+			}
 			pipeService.createOutputPipe(pipeAdvertisement, this);
             // send out a second pipe resolution after we connect
             // to a rendezvous
@@ -66,9 +74,11 @@ public class SimpleMessageOutputListener implements OutputPipeListener, Rendezvo
 				if (!rendezVousService.isConnectedToRendezVous()) {
 	                System.out.println("Waiting for Rendezvous Connection");
 	                try {
-	                    wait(JxtaConfigSettings.WAIT_FOR_RENDEZVOUS);
+	                	wait();
+	                    //wait(JxtaConfigSettings.WAIT_FOR_RENDEZVOUS);
 	                    System.out.println("Connected to Rendezvous, attempting to create a OutputPipe");
 	                    if (rendezVousService.isConnectedToRendezVous()) {
+	                    	System.out.println("Send message using rendezvous");
 	                    	pipeService.createOutputPipe(pipeAdvertisement, this);
 	                    }
 	                } catch (InterruptedException e) {

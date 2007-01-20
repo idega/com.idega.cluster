@@ -1,5 +1,5 @@
 /*
- * $Id: ApplicationPeerGroup.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * $Id: ApplicationPeerGroup.java,v 1.2 2007/01/20 21:55:21 thomas Exp $
  * Created on Dec 20, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -149,6 +149,10 @@ public class ApplicationPeerGroup {
     
     public RendezVousService getRendezVousService() {
     	return myPeerGroup.getRendezVousService();
+    }
+    
+    public DiscoveryService getDiscoveryService() {
+    	return myPeerGroup.getDiscoveryService();
     }
 
     public PipeService getPipeService() {

@@ -1,5 +1,5 @@
 /*
- * $Id: ClusterCacheMapNotifier.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * $Id: ClusterCacheMapNotifier.java,v 1.2 2007/01/20 21:53:43 thomas Exp $
  * Created on Dec 29, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -14,21 +14,20 @@ import com.idega.cluster.net.message.ApplicationMessenger;
 import com.idega.cluster.net.message.MessageListener;
 import com.idega.cluster.net.message.SimpleMessage;
 import com.idega.cluster.net.message.impl.ReplyMessageStopper;
-import com.idega.idegaweb.IWApplicationContext;
 
 
 /**
  * 
- *  Last modified: $Date: 2007/01/12 15:42:36 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/20 21:53:43 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ClusterCacheMapNotifier implements MessageListener {
 	
-	public static void getInstanceAddedToIWCacheManager2(ApplicationMessenger applicationMessenger,IWApplicationContext iwac) {
+	public static void getInstanceAddedToEhCache(ApplicationMessenger applicationMessenger) {
 		ReplyMessageStopper replyMessageStopper = new ReplyMessageStopper();
-		ClusterCacheMapNotifier clusterCacheNotifier = new ClusterCacheMapNotifier(replyMessageStopper, iwac);
+		ClusterCacheMapNotifier clusterCacheNotifier = new ClusterCacheMapNotifier(replyMessageStopper);
 		applicationMessenger.addSendFilter(replyMessageStopper);
 		applicationMessenger.addReceiveListener(clusterCacheNotifier);
 	}
@@ -36,9 +35,9 @@ public class ClusterCacheMapNotifier implements MessageListener {
 	private ClusterCacheMessageDecoder clusterCacheMessageDecoder = null;
 	private ReplyMessageStopper replyMessageStopper = null;
 	
-	public ClusterCacheMapNotifier(ReplyMessageStopper replyMessageStopper,  IWApplicationContext iwac) {
+	public ClusterCacheMapNotifier(ReplyMessageStopper replyMessageStopper) {
 		this.replyMessageStopper = replyMessageStopper;
-		this.clusterCacheMessageDecoder = new ClusterCacheMessageDecoder(iwac);
+		this.clusterCacheMessageDecoder = new ClusterCacheMessageDecoder();
 	}
 
 	/* (non-Javadoc)
@@ -51,6 +50,7 @@ public class ClusterCacheMapNotifier implements MessageListener {
 		if (action != null) {
 			// prevent that this kind of mail is sent again when the action is executed
 			replyMessageStopper.add(simpleMessage);
+			// does not need to be a thread, just run
 			action.run();
 		}
 	}

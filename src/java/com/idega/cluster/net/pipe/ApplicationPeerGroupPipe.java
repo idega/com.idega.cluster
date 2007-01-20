@@ -1,5 +1,5 @@
 /*
- * $Id: ApplicationPeerGroupPipe.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * $Id: ApplicationPeerGroupPipe.java,v 1.2 2007/01/20 21:55:20 thomas Exp $
  * Created on Dec 21, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import net.jxta.discovery.DiscoveryService;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.Message.ElementIterator;
@@ -53,6 +54,7 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 	PipeAdvertisement  pipeAdvertisement = null;
 	private PipeService pipeService = null;
 	private RendezVousService rendezVousService = null;
+	private DiscoveryService discoveryService = null;
 
 	
 	private List messageListeners = null;
@@ -121,9 +123,13 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 		if (rendezVousService != null) {
 			rendezVousService.stopApp();
 		}
+		if (discoveryService != null) {
+			discoveryService.stopApp();
+		}
 		if (applicationPeerGroup != null) {
 			applicationPeerGroup.destroy();
 		}
+		discoveryService = null;
 		rendezVousService = null;
 		pipeService = null;
 		applicationPeerGroup = null;
@@ -235,6 +241,10 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 		if (JxtaConfigSettings.USE_RENDEZVOUS_SERVICE) {
 			if (rendezVousService == null) {
 				rendezVousService = applicationPeerGroup.getRendezVousService();
+				//rendezVousService.startRendezVous();
+			}
+			if (discoveryService == null) {
+				discoveryService = applicationPeerGroup.getDiscoveryService();
 			}
 		}
 		// apply filters
@@ -250,10 +260,12 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 		
 		// use thread because OuptputListener might wait 
 		Runnable outputPipeListener = new SimpleMessageOutputListener(
-				messageToSend, rendezVousService, pipeService, pipeAdvertisement);
+				messageToSend, rendezVousService, discoveryService, pipeService, pipeAdvertisement);
 		Thread outputPipeListenerThread = new Thread(outputPipeListener);
+		// set as daemon if server chrashes
 		outputPipeListenerThread.setDaemon(true);
-		outputPipeListenerThread.run();
+		// go!
+		outputPipeListenerThread.start();
 	}
 
 

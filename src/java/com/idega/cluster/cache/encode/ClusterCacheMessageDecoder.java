@@ -1,5 +1,5 @@
 /*
- * $Id: ClusterCacheMessageDecoder.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * $Id: ClusterCacheMessageDecoder.java,v 1.2 2007/01/20 21:53:42 thomas Exp $
  * Created on Dec 29, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -9,40 +9,34 @@
  */
 package com.idega.cluster.cache.encode;
 
-import java.util.Map;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import com.idega.cluster.net.message.SimpleMessage;
-import com.idega.core.cache.IWCacheManager2;
-import com.idega.idegaweb.IWApplicationContext;
-import com.idega.idegaweb.IWMainApplication;
 
 
 /**
  * 
- *  Last modified: $Date: 2007/01/12 15:42:36 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/20 21:53:42 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ClusterCacheMessageDecoder {
 	
-	private IWCacheManager2 iwCacheManager2 = null;
 	private CacheManager cacheManager = null;
 	
-	public ClusterCacheMessageDecoder(IWApplicationContext iwac) {
-		initialize(iwac);
+	public ClusterCacheMessageDecoder() {
+		initialize();
 	}
 
-	private void initialize(IWApplicationContext iwac) {
-		IWMainApplication mainApplication = iwac.getIWMainApplication();
-		iwCacheManager2 = IWCacheManager2.getInstance(mainApplication);
+	private void initialize() {
 		cacheManager = CacheManager.getInstance();
 	}
 	
 	public Runnable decode(SimpleMessage simpleMessage) {
 		// is the message meant to us?
 		String namespace = simpleMessage.getSubject();
-		if (! ClusterCacheMessageEncoder.MESSAGE_NAMESPACE.equals(namespace)) {
+		if (! ClusterCacheMessageEncoder.MESSAGE_NAMESPACE_EHCACHE.equals(namespace)) {
 			return null;
 		}
 		// does the cache exist?
@@ -50,16 +44,10 @@ public class ClusterCacheMessageDecoder {
 		if (cacheName == null || (! cacheManager.cacheExists(cacheName))) {
 			return null;
 		}
-		final Map myCache = iwCacheManager2.getCache(cacheName);
+		
+
 		String methodCall = simpleMessage.get(ClusterCacheMessageEncoder.MESSAGE_METHOD_CALL);
-		if (ClusterCacheMessageEncoder.MESSAGE_CLEARED.equals(methodCall)) {
-			return new Runnable() {
-				public void run() {
-					myCache.clear();
-				}
-			};
-		}
-		else if (ClusterCacheMessageEncoder.MESSAGE_REMOVED.equals(methodCall)) {
+		if (ClusterCacheMessageEncoder.MESSAGE_REMOVED.equals(methodCall)) {
 			String value = simpleMessage.get(ClusterCacheMessageEncoder.MESSAGE_PARAMETER_VALUE);
 			if (value == null) {
 				return null;
@@ -76,6 +64,7 @@ public class ClusterCacheMessageDecoder {
 				return null;
 			}
 			// set final variable
+			final Cache myCache = cacheManager.getCache(cacheName);
 			final Object finalKey = key;
 			key = null;
 			return new Runnable() {
