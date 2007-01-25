@@ -1,5 +1,5 @@
 /*
- * $Id: ApplicationPeerGroupPipe.java,v 1.2 2007/01/20 21:55:20 thomas Exp $
+ * $Id: ApplicationPeerGroupPipe.java,v 1.3 2007/01/25 09:25:14 thomas Exp $
  * Created on Dec 21, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -9,6 +9,8 @@
  */
 package com.idega.cluster.net.pipe;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,10 +18,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.jxta.discovery.DiscoveryService;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.Message.ElementIterator;
 import net.jxta.peer.PeerID;
+import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.PipeID;
 import net.jxta.pipe.PipeMsgEvent;
 import net.jxta.pipe.PipeMsgListener;
@@ -99,9 +104,17 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 		peerID = peerURI.toString();
 		pipeService = applicationPeerGroup.getPipeService();
 		try {
+//        	String path = System.getProperty("JXTA_HOME");
+//        	File jxtaHome = new File(path);
+//        	File pipexampleAdv = new File(jxtaHome.getParentFile(), "pipexample.adv");
+//        	FileInputStream is = new FileInputStream(pipexampleAdv);
+//            pipeAdvertisement = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, is);			
+			
+			
 			PipeID pipeID = IDApplicationFactory.getApplicationPeerGroupPipeID(applicationPeerGroup, iwac);
 			pipeAdvertisement = PipeUtilities.createPipeAdvertisement(pipeID, PipeService.PropagateType);
 			pipeAdvertisement.setName(APPLICATION_PEER_GROUP_PIPE_NAME);
+            
 			pipeService.createInputPipe(pipeAdvertisement, this);
 		}
 		catch (IOException e) {
@@ -259,8 +272,7 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 		}
 		
 		// use thread because OuptputListener might wait 
-		Runnable outputPipeListener = new SimpleMessageOutputListener(
-				messageToSend, rendezVousService, discoveryService, pipeService, pipeAdvertisement);
+		Runnable outputPipeListener =  new SimpleMessageOutputListener(messageToSend, rendezVousService, discoveryService, pipeService, pipeAdvertisement);
 		Thread outputPipeListenerThread = new Thread(outputPipeListener);
 		// set as daemon if server chrashes
 		outputPipeListenerThread.setDaemon(true);

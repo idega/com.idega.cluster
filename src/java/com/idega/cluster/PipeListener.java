@@ -52,8 +52,9 @@ package com.idega.cluster;
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  *
- *  $Id: PipeListener.java,v 1.2 2007/01/12 15:43:40 thomas Exp $
+ *  $Id: PipeListener.java,v 1.3 2007/01/25 09:25:14 thomas Exp $
  */
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.Date;
 import net.jxta.document.AdvertisementFactory;
@@ -77,7 +78,7 @@ import net.jxta.util.DevNullOutputStream;
  *
  */
 
-public class PipeListener implements PipeMsgListener {
+public class PipeListener implements PipeMsgListener, Runnable {
 
     static PeerGroup netPeerGroup = null;
     private final static String SenderMessage = "PipeListenerMsg";
@@ -174,9 +175,10 @@ public class PipeListener implements PipeMsgListener {
         pipe = netPeerGroup.getPipeService();
         System.out.println("Reading in pipexample.adv");
         try {
-        	FileInputStream is = new FileInputStream("/Users/thomas/workspaces/workspace_ePlatform_rvk_20061127/applications/reykjavik/target/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties/pipexample.adv");
-            //FileInputStream is = new FileInputStream("/Users/thomas/workspaces/targets/tomcat2/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties/pipexample.adv");
-
+        	String path = System.getProperty("JXTA_HOME");
+        	File jxtaHome = new File(path);
+        	File pipexampleAdv = new File(jxtaHome.getParentFile(), "pipexample.adv");
+        	FileInputStream is = new FileInputStream(pipexampleAdv);
             pipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, is);
             is.close();
         } catch (Exception e) {

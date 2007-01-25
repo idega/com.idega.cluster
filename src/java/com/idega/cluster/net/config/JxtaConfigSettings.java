@@ -1,5 +1,5 @@
 /*
- * $Id: JxtaConfigSettings.java,v 1.2 2007/01/20 21:55:17 thomas Exp $
+ * $Id: JxtaConfigSettings.java,v 1.3 2007/01/25 09:25:13 thomas Exp $
  * Created on Jan 5, 2007
  *
  * Copyright (C) 2007 Idega Software hf. All Rights Reserved.
@@ -12,23 +12,34 @@ package com.idega.cluster.net.config;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/20 21:55:17 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/25 09:25:13 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class JxtaConfigSettings {
-
-	// some variables to change set up
 	
+	//how to configure the JXTA client
+	
+	// step 1
+	// if true the system looks up an existing one in jxta home else go to step 2
+	public static final boolean USE_EXISTING_PLATFORM_CONFIG = false;
+	
+	// step 2
+	// if true the system cleans jxta home and calls the config wizard (GUI appliction) else go to step 3
+	public static final boolean CALL_CONFIG_APPLICATION = false;
+	
+	// step 3 
+	// configure automatically
+
+	
+	// some variables to change set up
+	public static final boolean USE_OWN_GROUP = false;	
 	public static final boolean USE_MULTICAST_TCP_TRANSPORT = false;
 	public static final boolean USE_RENDEZVOUS_SERVICE = true;
 	
-	// set this when NAT or firewalls are in the way, default value is port 9700
-	public static final boolean SET_HTTP_TRANSPORT_PORT_80 = true;
-	
 	// in milliseconds (only used if rendezvous is enabled) 
-	public static final long WAIT_FOR_RENDEZVOUS = 2000;
+	public static final long WAIT_FOR_RENDEZVOUS = 4000;
 	// not really important, in minutes
 	public static final long MESSAGE_STORE_TIME = 30;
 }

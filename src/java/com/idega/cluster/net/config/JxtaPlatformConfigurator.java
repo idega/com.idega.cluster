@@ -1,5 +1,5 @@
 /*
- * $Id: JxtaPlatformConfigurator.java,v 1.2 2007/01/20 21:55:17 thomas Exp $
+ * $Id: JxtaPlatformConfigurator.java,v 1.3 2007/01/25 09:25:13 thomas Exp $
  * Created on Dec 27, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -15,12 +15,14 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.jxta.ext.config.Address;
 import net.jxta.ext.config.Configurator;
 import net.jxta.ext.config.MulticastAddress;
 import net.jxta.ext.config.Profile;
+import net.jxta.ext.config.PublicAddress;
 import net.jxta.ext.config.TcpTransportAddress;
 import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.PeerGroupID;
@@ -34,12 +36,12 @@ import com.idega.util.FileUtil;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/20 21:55:17 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/25 09:25:13 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
  * @author  danielbrookshier
  * 
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class JxtaPlatformConfigurator {
 
@@ -51,14 +53,17 @@ public class JxtaPlatformConfigurator {
     	IWMainApplication mainApplication = iwac.getIWMainApplication();
     	// set JXTA home, should be private!
       	File jxtaHome = defineJxtaHome(mainApplication);
-      	// clean jxtaHome
+      	if (JxtaConfigSettings.USE_EXISTING_PLATFORM_CONFIG) {
+      		return;
+      	}
     	prepareJxtaHome(jxtaHome);
-    	
+      	if (JxtaConfigSettings.CALL_CONFIG_APPLICATION) {
+      		return;
+      	}
+     	// configure automatically
       	ApplicationProductInfo productInfo = mainApplication.getProductInfo();
       	String peerName = productInfo.getName();
-      	
-      	JxtaPlatformConfigurator jxtaPlatformConfigurator = 
-      		new JxtaPlatformConfigurator(peerName, "password", "secretpassword", jxtaHome, iwac);
+   		new JxtaPlatformConfigurator(peerName, "password", "secretpassword", jxtaHome, iwac);
     }
 
     public static File defineJxtaHome(IWMainApplication mainApplication) {
@@ -108,30 +113,26 @@ public class JxtaPlatformConfigurator {
             String infraStructurePeerGroupName = "privateNet"+peerName;
             String infraStructurePeerGroupDes = "desPrivateNet"+peerName;
         	
-            if (true) {
-	            // write file "config.properties" that is read by other classes like PeerGroupFactory
-	            String infrastructurePeerGroupIDAsString = infrastructurePeerGroupID.toURI().toString();
-	            writeConfigProperties(jxtaHome, infrastructurePeerGroupIDAsString, infraStructurePeerGroupName, infraStructurePeerGroupDes);
+            // write file "config.properties" that is read by other classes like PeerGroupFactory
+            String infrastructurePeerGroupIDAsString = infrastructurePeerGroupID.toURI().toString();
+	        writeConfigProperties(jxtaHome, infrastructurePeerGroupIDAsString, infraStructurePeerGroupName, infraStructurePeerGroupDes);
 	        	
-        	}
             //LOG.info("JXTA_HOME="+jxtaHome.getCanonicalPath());
             Profile profile = Profile.DEFAULT; // File("./jxta_profile.xml").toURL());//"./superPeer.xml").toURL());//
             
             Configurator configurator =  new Configurator(jxtaHome.toURI(),profile);
             
-            if (true) {
-	            // change configurator 
-	            configurator.setInfrastructurePeerGroupName(infraStructurePeerGroupName);
-	            configurator.setInfrastructurePeerGroupDescription(infraStructurePeerGroupDes);
-	            configurator.setInfrastructurePeerGroupId(infrastructurePeerGroupID);
-	            
-	            // change also PeerGroupFactory because the PeerGroupFactory might be initialized wrong by
-	            // reading a wrong config.properties file or using the defalut values if config.proeprties file was not created yet
-	            PeerGroupFactory.setNetPGName(infraStructurePeerGroupName);
-	            PeerGroupFactory.setNetPGDesc(infraStructurePeerGroupDes);
-	            PeerGroupFactory.setNetPGID(infrastructurePeerGroupID);
-            }
-            
+            // change configurator 
+            configurator.setInfrastructurePeerGroupName(infraStructurePeerGroupName);
+            configurator.setInfrastructurePeerGroupDescription(infraStructurePeerGroupDes);
+            configurator.setInfrastructurePeerGroupId(infrastructurePeerGroupID);
+           
+            // change also PeerGroupFactory because the PeerGroupFactory might be initialized wrong by
+            // reading a wrong config.properties file or using the defalut values if config.proeprties file was not created yet
+            PeerGroupFactory.setNetPGName(infraStructurePeerGroupName);
+            PeerGroupFactory.setNetPGDesc(infraStructurePeerGroupDes);
+            PeerGroupFactory.setNetPGID(infrastructurePeerGroupID);
+
             // set this peer
             configurator.setName(peerName); 
             configurator.setSecurity(id, password);
@@ -181,16 +182,30 @@ public class JxtaPlatformConfigurator {
 //            	} catch (Exception ex) { ex.printStackTrace(); }
 
 //            
-            //URI uri = new URI("http",null,"192.168.76.128",9700,null,null, null);
+            URI seedRendezvousUri = new URI("tcp",null,"192.168.76.128",9701,null,null, null);
+            // because of an error in the API we have to do it like this
+            // see http://comments.gmane.org/gmane.comp.java.jax-rpc.devel/3281
+            // !!!!!!! DO NOT USE addRendezvous(URI) !!!!
+            List seedRendezvous = new ArrayList();
+            seedRendezvous.add(seedRendezvousUri);
+            configurator.addRendezVous(seedRendezvous);
             //URI uri = new URI("http",null,"157.157.121.37",9700,null,null, null);
             //configurator.addRendezVous(uri);//new URI("http", "157.157.121.37:9150", null, null));
 //            configurator.addRelay(new URI("http",address, null, null));
             
-            configurator.setRelaysDiscovery(true);
-            configurator.setRendezVousDiscovery(true);
+            configurator.setRelaysDiscovery(false);
+            configurator.setRendezVousDiscovery(false);
             
-            configurator.setRendezVous(true);
+            
+             //act as rendezvous
+             configurator.setRendezVous(true);
+            
+            
+            
             //configurator.setRendezVousAutoStart(3000);
+            
+//            URI rendezVousUri = new URI("http",null, "thomastest.sidan.is", 80, null, null, null);
+//            configurator.addRendezVous(rendezVousUri);
             
             //testttesttest
 //            configurator.setRelayIncoming(false);
@@ -267,14 +282,40 @@ public class JxtaPlatformConfigurator {
             List list = configurator.getTransports();
             for (int i = 0;i < list.size();i++){
                 LOG.info("Transports("+i+"):"+list.get(i).getClass().getName()+" "+list.get(i));
+                
+                /*
+                 * 
+                 * TCP Transport
+                 * 
+                 */
                 if (list.get(i) instanceof net.jxta.ext.config.TcpTransport){
                     net.jxta.ext.config.TcpTransport data = (net.jxta.ext.config.TcpTransport)list.get(i);
                     TcpTransportAddress tcpAddress = (TcpTransportAddress) data.getAddresses().get(0);
                     MulticastAddress multicast = (MulticastAddress) tcpAddress.getMulticastAddresses().get(0);
-                    // multicast default switched off - therefore switch it on
-                    if (JxtaConfigSettings.USE_MULTICAST_TCP_TRANSPORT) {
-                    	multicast.setMulticast(true);
+                    
+                    // use multicast or not
+                   	multicast.setMulticast(JxtaConfigSettings.USE_MULTICAST_TCP_TRANSPORT);
+
+                    // enable incoming and outgoing
+                    data.setOutgoing(true);
+                    data.setIncoming(true);
+
+                    
+                    if (true) {
+	                    Address address = (Address) data.getAddresses().get(0);
+	                    URI uri = address.getAddress();
+	                    String scheme = uri.getScheme();
+	                    String userInfo = uri.getUserInfo();
+	                    String host = uri.getHost();
+	                    int port = 9704; // default 9701
+  	                    String path = uri.getPath();
+	                    String query = uri.getQuery();
+	                    String fragment = uri.getFragment();
+	                    URI newURI = new URI(scheme,userInfo,host,port, path, query,fragment);
+	                    address.setAddress(newURI);
                     }
+
+                    
                     
                     LOG.info("  isEnabled:"+data.isEnabled());
                     LOG.info("  isIncoming:"+data.isIncoming());
@@ -289,15 +330,27 @@ public class JxtaPlatformConfigurator {
                         LOG.info("  Addresses("+i+"):"+listAddr.get(i).getClass().getName()+" "+listAddr.get(i));
                     }
                 }
+                
+                /*
+                 *  
+                 * HTTP Transport
+                 * 
+                 */
                 if (list.get(i) instanceof net.jxta.ext.config.HttpTransport){
                     net.jxta.ext.config.HttpTransport data = (net.jxta.ext.config.HttpTransport)list.get(i);
-                    if (JxtaConfigSettings.SET_HTTP_TRANSPORT_PORT_80) {
+                    
+                    // enable incoming and outgoing
+                    data.setOutgoing(true);
+                    data.setIncoming(false);
+
+
+                    if (true) {
 	                    Address address = (Address) data.getAddresses().get(0);
 	                    URI uri = address.getAddress();
 	                    String scheme = uri.getScheme();
 	                    String userInfo = uri.getUserInfo();
 	                    String host = uri.getHost();
-	                    int port = 80;
+	                    int port = 9703;  // default 9700
 	                    String path = uri.getPath();
 	                    String query = uri.getQuery();
 	                    String fragment = uri.getFragment();

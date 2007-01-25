@@ -52,8 +52,9 @@ package com.idega.cluster;
  *
  *  This license is based on the BSD license adopted by the Apache Foundation.
  *
- *  $Id: PipeExample.java,v 1.2 2007/01/12 15:43:40 thomas Exp $
+ *  $Id: PipeExample.java,v 1.3 2007/01/25 09:25:14 thomas Exp $
  */
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -99,7 +100,13 @@ public class PipeExample implements
      */
     public static void main(String args[]) {
         PipeExample myapp = new PipeExample();
-        myapp.startJxta();
+        myapp.startJxta(null);
+        myapp.run();
+    }
+    
+    public static void test(PeerGroup peerGroup) {
+        PipeExample myapp = new PipeExample();
+        myapp.startJxta(peerGroup);
         myapp.run();
     }
 
@@ -180,10 +187,15 @@ public class PipeExample implements
     /**
      *  Starts jxta, and get the pipe, and discovery service
      */
-    private void startJxta() {
+    private void startJxta(PeerGroup peerGroup) {
         try {
-            // create, and Start the default jxta NetPeerGroup
-            netPeerGroup = PeerGroupFactory.newNetPeerGroup();
+        	if (peerGroup == null) {
+	            // create, and Start the default jxta NetPeerGroup
+	            netPeerGroup = PeerGroupFactory.newNetPeerGroup();
+        	}
+        	else {
+        		netPeerGroup = peerGroup;
+        	}
             rendezvous = netPeerGroup.getRendezVousService();
             rendezvous.addListener(this);
             // uncomment the following line if you want to start the app defined
@@ -203,9 +215,10 @@ public class PipeExample implements
         discovery = netPeerGroup.getDiscoveryService();
         System.out.println("Reading in pipexample.adv");
         try {
-        	FileInputStream is = new FileInputStream("/Users/thomas/workspaces/workspace_ePlatform_rvk_20061127/applications/reykjavik/target/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties/pipexample.adv");
-
-            //FileInputStream is = new FileInputStream("/Users/thomas/workspaces/targets/targetA3/reykjavik/idegaweb/bundles/com.idega.cluster.bundle/properties/pipexample.adv");
+        	String path = System.getProperty("JXTA_HOME");
+        	File jxtaHome = new File(path);
+        	File pipexampleAdv = new File(jxtaHome.getParentFile(), "pipexample.adv");
+        	FileInputStream is = new FileInputStream(pipexampleAdv);
             pipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement(MimeMediaType.XMLUTF8, is);
             is.close();
         } catch (Exception e) {

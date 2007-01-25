@@ -1,5 +1,5 @@
 /*
- * $Id: ApplicationPeerGroup.java,v 1.2 2007/01/20 21:55:21 thomas Exp $
+ * $Id: ApplicationPeerGroup.java,v 1.3 2007/01/25 09:25:14 thomas Exp $
  * Created on Dec 20, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -24,7 +24,10 @@ import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.PipeService;
 import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.PeerAdvertisement;
+import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
+import com.idega.cluster.net.config.JxtaConfigSettings;
 import com.idega.cluster.net.config.JxtaPlatformConfigurator;
 import com.idega.cluster.net.id.IDApplicationFactory;
 import com.idega.idegaweb.IWApplicationContext;
@@ -38,7 +41,6 @@ public class ApplicationPeerGroup {
 	
 	private PeerGroup parentPeerGroup = null;
 	private DiscoveryService discoveryService = null;
-	private RendezVousService myRendezVousService = null;
 	private PeerGroup myPeerGroup = null;
 	
 	private boolean active = false;
@@ -56,9 +58,6 @@ public class ApplicationPeerGroup {
 		// stop all modules
 		if (discoveryService != null) {
 			discoveryService.stopApp();
-		}
-		if (myRendezVousService != null) {
-			myRendezVousService.stopApp();
 		}
 		if (myPeerGroup != null) {
 			myPeerGroup.stopApp();
@@ -84,11 +83,18 @@ public class ApplicationPeerGroup {
 	private boolean startJXTA(IWApplicationContext iwac) {
 		// creating platform config
 		//ApplicationJxtaNetConfigurator.createPlatformConfig(iwac);
+		
+		
 		JxtaPlatformConfigurator.createPlatformConfig(iwac);
+		
+		
+		//RendezvousRelayPeerConfiguration.createPlatformConfig(iwac);
+		//TCPEdgePeerConfiguration.createPlatformConfig(iwac);
+		
 		// getting default peer group
 		parentPeerGroup = null; 
 		try {
-			parentPeerGroup = PeerGroupFactory.newNetPeerGroup();
+			parentPeerGroup = PeerGroupFactory.newNetPeerGroup();   
 		}
 		catch (PeerGroupException e) {
 			e.printStackTrace();
@@ -102,13 +108,26 @@ public class ApplicationPeerGroup {
 
 
 	private boolean createGroups(IWApplicationContext iwac) {
+		if (! JxtaConfigSettings.USE_OWN_GROUP) {
+			// use the default group
+			myPeerGroup = parentPeerGroup;
+			return true;
+		}
 		// go the simple way, create a all purpose group
 		try {
 			ModuleImplAdvertisement moduleImplAdvertisement = parentPeerGroup.getAllPurposePeerGroupImplAdvertisement();
 			// create the unique group id 
 			PeerGroupID peerGroupID = IDApplicationFactory.getApplicationPeerGroupID(iwac);
 			myPeerGroup = parentPeerGroup.newGroup(peerGroupID, moduleImplAdvertisement, APPLICATION_PEER_GROUP_NAME, APPLICATION_PEER_GROUP_DESCRIPTION);
+			// publish group
+			PeerGroupAdvertisement peerGroupAdvertisement = myPeerGroup.getPeerGroupAdvertisement();
+			discoveryService.publish(peerGroupAdvertisement);
+			discoveryService.remotePublish(peerGroupAdvertisement);
 			joinGroup(myPeerGroup);
+			PeerAdvertisement peerAdvertisement = myPeerGroup.getPeerAdvertisement();
+			discoveryService.publish(peerAdvertisement);
+			discoveryService.remotePublish(peerAdvertisement);
+			
 		}
 		catch (Exception e) {
 			e.printStackTrace();

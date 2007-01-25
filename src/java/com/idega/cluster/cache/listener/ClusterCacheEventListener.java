@@ -1,5 +1,5 @@
 /*
- * $Id: ClusterCacheEventListener.java,v 1.1 2007/01/20 21:53:44 thomas Exp $
+ * $Id: ClusterCacheEventListener.java,v 1.2 2007/01/25 09:25:14 thomas Exp $
  * Created on Jan 19, 2007
  *
  * Copyright (C) 2007 Idega Software hf. All Rights Reserved.
@@ -19,10 +19,10 @@ import net.sf.ehcache.event.CacheEventListener;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/20 21:53:44 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/25 09:25:14 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ClusterCacheEventListener implements CacheEventListener {
 	
@@ -69,7 +69,7 @@ public class ClusterCacheEventListener implements CacheEventListener {
 	 */
 	public void notifyElementRemoved(Cache arg0, Element arg1) throws CacheException {
 		// map to removeElement
-		applicationMessenger.sendMessage(clusterCacheMessageEncoder.notifyRemovedElement(arg1));
+		//applicationMessenger.sendMessage(clusterCacheMessageEncoder.notifyRemovedElement(arg1));
 	}
 
 	/* (non-Javadoc)

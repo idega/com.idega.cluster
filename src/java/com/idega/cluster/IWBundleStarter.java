@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.4 2007/01/20 21:55:20 thomas Exp $
+ * $Id: IWBundleStarter.java,v 1.5 2007/01/25 09:25:14 thomas Exp $
  * Created on 3.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -30,27 +30,27 @@ import com.idega.idegaweb.IWBundleStartable;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/20 21:55:20 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/25 09:25:14 $ by $Author: thomas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 	
 	private ApplicationMessenger applicationMessenger = null;
 
 	public void start(IWBundle starterBundle) {
-		if (false) {
+		if (true) {
 			// for production
 			startPrivateNet(starterBundle);
 		}
 		
-		if (true) {
+		else if (false) {
 			// for testing 
 			startPipeListener(starterBundle);
 		}
 		
-		if (true) {
+		else if (true) {
 			// for testing
 			startPipeExample(starterBundle);
 		}
@@ -59,14 +59,14 @@ public class IWBundleStarter implements IWBundleStartable {
 	public void startPipeExample(IWBundle starterBundle) {
 		IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
 		File jxtaHome = JxtaPlatformConfigurator.defineJxtaHome(iwac.getIWMainApplication());
-		JxtaPlatformConfigurator.prepareJxtaHome(jxtaHome);
+		//JxtaPlatformConfigurator.prepareJxtaHome(jxtaHome);
 		PipeExample.main(null);
 	}
 	
 	public void startPipeListener(IWBundle starterBundle) {
 		IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
 		File jxtaHome = JxtaPlatformConfigurator.defineJxtaHome(iwac.getIWMainApplication());
-		JxtaPlatformConfigurator.prepareJxtaHome(jxtaHome);
+		//JxtaPlatformConfigurator.prepareJxtaHome(jxtaHome);
 		PipeListener.main(null);
 	}
 	
