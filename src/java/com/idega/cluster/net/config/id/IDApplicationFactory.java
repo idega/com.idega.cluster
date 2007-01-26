@@ -1,5 +1,5 @@
 /*
- * $Id: IDApplicationFactory.java,v 1.1 2007/01/12 15:45:17 thomas Exp $
+ * $Id: IDApplicationFactory.java,v 1.1 2007/01/26 07:15:02 thomas Exp $
  * Created on Dec 21, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -7,7 +7,7 @@
  * This software is the proprietary information of Idega hf.
  * Use is subject to license terms.
  */
-package com.idega.cluster.net.id;
+package com.idega.cluster.net.config.id;
 
 import java.io.IOException;
 import java.net.URI;

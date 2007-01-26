@@ -1,5 +1,5 @@
 /*
- * $Id: JxtaPlatformConfigurator.java,v 1.3 2007/01/25 09:25:13 thomas Exp $
+ * $Id: JxtaPlatformConfigurator.java,v 1.4 2007/01/26 07:15:01 thomas Exp $
  * Created on Dec 27, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -12,9 +12,7 @@ package com.idega.cluster.net.config;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,12 +20,13 @@ import net.jxta.ext.config.Address;
 import net.jxta.ext.config.Configurator;
 import net.jxta.ext.config.MulticastAddress;
 import net.jxta.ext.config.Profile;
-import net.jxta.ext.config.PublicAddress;
 import net.jxta.ext.config.TcpTransportAddress;
 import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.PeerGroupID;
 import com.idega.cluster.JxtaConfig;
-import com.idega.cluster.net.id.IDApplicationFactory;
+import com.idega.cluster.net.config.id.IDApplicationFactory;
+import com.idega.cluster.net.config.id.PeerIdentifier;
+import com.idega.cluster.net.config.id.PeerIdentifierSetter;
 import com.idega.idegaweb.ApplicationProductInfo;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWMainApplication;
@@ -36,12 +35,12 @@ import com.idega.util.FileUtil;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/25 09:25:13 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/26 07:15:01 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
  * @author  danielbrookshier
  * 
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class JxtaPlatformConfigurator {
 
@@ -80,8 +79,28 @@ public class JxtaPlatformConfigurator {
     	FileUtil.deleteContentOfFolder(jxtaHome);
     }
     
+    private String peerName = null;
+    private String passwordId = null;
+    private String password = null;
+    private File jxtaHome = null;
+    private IWApplicationContext iwac = null;
     
-    public JxtaPlatformConfigurator(String peerName, String id, String password, File jxtaHome, IWApplicationContext iwac) {
+    
+    public JxtaPlatformConfigurator(String peerName, String passwordId, String password, File jxtaHome, IWApplicationContext iwac) {
+    	this.peerName = peerName;
+    	this.passwordId = passwordId;
+    	this.password = password;
+    	this.jxtaHome = jxtaHome;
+    	this.iwac = iwac;
+    	initialize(iwac);
+    }
+    
+    private void initialize(IWApplicationContext iwac) {
+    	PeerIdentifierSetter peerIdentifierSetter = new PeerIdentifierSetter(iwac);
+    	createConfiguration(peerIdentifierSetter);
+    }
+    
+    private void createConfiguration(PeerIdentifierSetter peerIdentifierSetter) {
         LOG.setLevel(org.apache.log4j.Level.INFO);
       
 //        Properties defaultProps = new Properties();
@@ -135,7 +154,7 @@ public class JxtaPlatformConfigurator {
 
             // set this peer
             configurator.setName(peerName); 
-            configurator.setSecurity(id, password);
+            configurator.setSecurity(passwordId, password);
                         
             // new stuff
 //            String rdvSeedingURI="";
@@ -181,13 +200,24 @@ public class JxtaPlatformConfigurator {
 //            	 
 //            	} catch (Exception ex) { ex.printStackTrace(); }
 
-//            
-            URI seedRendezvousUri = new URI("tcp",null,"192.168.76.128",9701,null,null, null);
+//          
+            
+            configurator.clearRendezVous();
+          	configurator.clearRelays();
+            
+            // set seed rendezvous 
+            List seedPeers = peerIdentifierSetter.getSeedPeers();
+
             // because of an error in the API we have to do it like this
             // see http://comments.gmane.org/gmane.comp.java.jax-rpc.devel/3281
             // !!!!!!! DO NOT USE addRendezvous(URI) !!!!
             List seedRendezvous = new ArrayList();
-            seedRendezvous.add(seedRendezvousUri);
+            Iterator peerIterator = seedPeers.iterator();
+            while (peerIterator.hasNext()) {
+            	PeerIdentifier peerIdentifier = (PeerIdentifier) peerIterator.next();
+            	URI peerURI = peerIdentifier.getUri();
+            	seedRendezvous.add(peerURI);
+            }
             configurator.addRendezVous(seedRendezvous);
             //URI uri = new URI("http",null,"157.157.121.37",9700,null,null, null);
             //configurator.addRendezVous(uri);//new URI("http", "157.157.121.37:9150", null, null));
@@ -198,11 +228,11 @@ public class JxtaPlatformConfigurator {
             
             
              //act as rendezvous
-             configurator.setRendezVous(true);
+             //configurator.setRendezVous(true);
             
             
             
-            //configurator.setRendezVousAutoStart(3000);
+            configurator.setRendezVousAutoStart(3000);
             
 //            URI rendezVousUri = new URI("http",null, "thomastest.sidan.is", 80, null, null, null);
 //            configurator.addRendezVous(rendezVousUri);
@@ -307,7 +337,7 @@ public class JxtaPlatformConfigurator {
 	                    String scheme = uri.getScheme();
 	                    String userInfo = uri.getUserInfo();
 	                    String host = uri.getHost();
-	                    int port = 9704; // default 9701
+	                    int port = peerIdentifierSetter.getTCPPort().intValue(); // default 9701
   	                    String path = uri.getPath();
 	                    String query = uri.getQuery();
 	                    String fragment = uri.getFragment();
@@ -350,7 +380,7 @@ public class JxtaPlatformConfigurator {
 	                    String scheme = uri.getScheme();
 	                    String userInfo = uri.getUserInfo();
 	                    String host = uri.getHost();
-	                    int port = 9703;  // default 9700
+	                    int port = peerIdentifierSetter.getHTTPPort().intValue();  // default 9700
 	                    String path = uri.getPath();
 	                    String query = uri.getQuery();
 	                    String fragment = uri.getFragment();

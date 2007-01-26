@@ -1,5 +1,5 @@
 /*
- * $Id: ApplicationPeerGroupPipe.java,v 1.3 2007/01/25 09:25:14 thomas Exp $
+ * $Id: ApplicationPeerGroupPipe.java,v 1.4 2007/01/26 07:15:02 thomas Exp $
  * Created on Dec 21, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -35,7 +35,7 @@ import net.jxta.util.CountingOutputStream;
 import net.jxta.util.DevNullOutputStream;
 import net.jxta.util.PipeUtilities;
 import com.idega.cluster.net.config.JxtaConfigSettings;
-import com.idega.cluster.net.id.IDApplicationFactory;
+import com.idega.cluster.net.config.id.IDApplicationFactory;
 import com.idega.cluster.net.message.ApplicationMessenger;
 import com.idega.cluster.net.message.MessageListener;
 import com.idega.cluster.net.message.ReceiveFilter;

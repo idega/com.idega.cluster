@@ -1,5 +1,5 @@
 /*
- * $Id: RendezvousRelayPeerConfiguration.java,v 1.1 2007/01/25 09:25:13 thomas Exp $
+ * $Id: RendezvousRelayPeerConfiguration.java,v 1.2 2007/01/26 07:15:01 thomas Exp $
  * Created on Dec 27, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -21,7 +21,7 @@ import net.jxta.ext.config.TcpTransportAddress;
 import net.jxta.peergroup.PeerGroupFactory;
 import net.jxta.peergroup.PeerGroupID;
 import com.idega.cluster.JxtaConfig;
-import com.idega.cluster.net.id.IDApplicationFactory;
+import com.idega.cluster.net.config.id.IDApplicationFactory;
 import com.idega.idegaweb.ApplicationProductInfo;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWMainApplication;
@@ -30,12 +30,12 @@ import com.idega.util.FileUtil;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/25 09:25:13 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/01/26 07:15:01 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
  * @author  danielbrookshier
  * 
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class RendezvousRelayPeerConfiguration {
 
