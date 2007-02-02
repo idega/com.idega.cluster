@@ -1,5 +1,5 @@
 /*
- * $Id: PeerIdentifierSetter.java,v 1.2 2007/02/02 00:53:42 thomas Exp $
+ * $Id: PeerIdentifierSetter.java,v 1.3 2007/02/02 01:43:11 thomas Exp $
  * Created on Dec 21, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -91,9 +91,6 @@ public class PeerIdentifierSetter {
 			// there is sometimes a problem here, see:
 			// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4073539
 			//myIP = "157.157.121.37";//myIPAddress.getHostAddress();
-			Socket socket = SocketFactory.getDefault().createSocket();
-			int hallo = socket.getLocalPort();
-			String allo = socket.getLocalAddress().getHostAddress();
 			myIP = InetAddress.getLocalHost().getHostAddress();
 		}
 		catch (UnknownHostException e) {
