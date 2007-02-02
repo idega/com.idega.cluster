@@ -1,5 +1,5 @@
 /*
- * $Id: PeerIdentifierSetter.java,v 1.1 2007/01/26 07:15:02 thomas Exp $
+ * $Id: PeerIdentifierSetter.java,v 1.2 2007/02/02 00:53:42 thomas Exp $
  * Created on Dec 21, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -11,6 +11,7 @@ package com.idega.cluster.net.config.id;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
@@ -20,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import javax.net.SocketFactory;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBORuntimeException;
@@ -86,15 +88,21 @@ public class PeerIdentifierSetter {
 	private boolean setPeerIdentifierIntoDatabase(IWApplicationContext iwac) throws IOException {
 		// get ip address
 		try {
-			InetAddress myIPAddress = InetAddress.getLocalHost();
-			myIP = myIPAddress.getHostAddress();
+			// there is sometimes a problem here, see:
+			// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4073539
+			//myIP = "157.157.121.37";//myIPAddress.getHostAddress();
+			Socket socket = SocketFactory.getDefault().createSocket();
+			int hallo = socket.getLocalPort();
+			String allo = socket.getLocalAddress().getHostAddress();
+			myIP = InetAddress.getLocalHost().getHostAddress();
 		}
 		catch (UnknownHostException e) {
 			getLogger().warning("[PeerIdentifierSetter] Own IP address could not be retrieved");
 			throw new IOException("[PeerIdentifierSetter] Own IP address could not be retrieved");
 		}
 		// get identifier
-		myIdentifier = iwac.getIWMainApplication().getApplicationRealPath();
+		String path = iwac.getIWMainApplication().getApplicationRealPath();
+		myIdentifier = Integer.toString(path.hashCode());
 		// get other peers
 		IWMainApplicationSettings iwMainApplicationSettings =iwac.getApplicationSettings();
 		// step 1 reading
@@ -201,7 +209,9 @@ public class PeerIdentifierSetter {
 			// return not found
 			return false;
 		}
-		// case 2: only one found but without an identifier
+		// case 2: only one found - ignore identifier 
+		// in that way someone can put an entry into the database without an identifier
+		// or the application can be moved around on the same machine
 		if (foundPeersWithSameIP.size() == 1) {
 			// special case: someone put the entry in the database manually without an identifier, accept this case
 			PeerIdentifier peerIdentifier = (PeerIdentifier) foundPeersWithSameIP.get(0);
