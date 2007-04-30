@@ -1,5 +1,5 @@
 /*
- * $Id: ApplicationPeerGroupPipe.java,v 1.4 2007/01/26 07:15:02 thomas Exp $
+ * $Id: ApplicationPeerGroupPipe.java,v 1.5 2007/04/30 13:17:39 thomas Exp $
  * Created on Dec 21, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -9,8 +9,6 @@
  */
 package com.idega.cluster.net.pipe;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,13 +16,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.jxta.discovery.DiscoveryService;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
 import net.jxta.endpoint.Message.ElementIterator;
 import net.jxta.peer.PeerID;
-import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.PipeID;
 import net.jxta.pipe.PipeMsgEvent;
 import net.jxta.pipe.PipeMsgListener;
@@ -61,6 +56,7 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 	private RendezVousService rendezVousService = null;
 	private DiscoveryService discoveryService = null;
 
+	private MessageQueue messageQueue = null;
 	
 	private List messageListeners = null;
 	private List sendFilters = null;
@@ -82,6 +78,7 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 	private void initialize(IWApplicationContext iwac) {
 		if (createAppliactionPeerGroup(iwac)) {
 			if (createPipe(iwac)) {
+				messageQueue = new MessageQueue();
 				active = true;
 				return;
 			}
@@ -130,6 +127,9 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 		
 	public synchronized void destroy() {
 		active = false;
+		if (messageQueue != null) {
+			messageQueue.destroy();
+		}
 		if (pipeService != null) {
 			pipeService.stopApp();
 		}
@@ -142,6 +142,7 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 		if (applicationPeerGroup != null) {
 			applicationPeerGroup.destroy();
 		}
+		messageQueue = null;
 		discoveryService = null;
 		rendezVousService = null;
 		pipeService = null;
@@ -160,7 +161,7 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
             if (msg == null) {
                 return;
             }
-            printMessageStats(msg, true);
+            //printMessageStats(msg, true);
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -271,13 +272,9 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 			}
 		}
 		
-		// use thread because OuptputListener might wait 
+		// use queue because OutputListener might wait 
 		Runnable outputPipeListener =  new SimpleMessageOutputListener(messageToSend, rendezVousService, discoveryService, pipeService, pipeAdvertisement);
-		Thread outputPipeListenerThread = new Thread(outputPipeListener);
-		// set as daemon if server chrashes
-		outputPipeListenerThread.setDaemon(true);
-		// go!
-		outputPipeListenerThread.start();
+		messageQueue.add(outputPipeListener);
 	}
 
 
