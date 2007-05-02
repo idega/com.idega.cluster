@@ -1,5 +1,5 @@
 /*
- * $Id: ClusterCacheManagerListener.java,v 1.3 2007/05/02 14:56:19 thomas Exp $
+ * $Id: ClusterCacheManagerListener.java,v 1.4 2007/05/02 14:56:48 thomas Exp $
  * Created on Dec 29, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -18,10 +18,10 @@ import com.idega.cluster.net.message.ApplicationMessenger;
 
 /**
  * 
- *  Last modified: $Date: 2007/05/02 14:56:19 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/05/02 14:56:48 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ClusterCacheManagerListener implements CacheManagerEventListener {
 	
@@ -42,7 +42,7 @@ public class ClusterCacheManagerListener implements CacheManagerEventListener {
 			LOG.error("[ClusterCacheManagerListener] Could not add listener CacheManager, Listener already exist: " + 
 					cacheManagerEventListener.toString());
 			return null;
-		}
+//		}
 		// check if there are already caches
 		String[] cacheNames = cacheManager.getCacheNames();
 		for (int i = 0; i < cacheNames.length; i++) {
