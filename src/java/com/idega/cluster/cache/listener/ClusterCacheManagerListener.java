@@ -1,5 +1,5 @@
 /*
- * $Id: ClusterCacheManagerListener.java,v 1.2 2007/01/20 21:53:43 thomas Exp $
+ * $Id: ClusterCacheManagerListener.java,v 1.3 2007/05/02 14:56:19 thomas Exp $
  * Created on Dec 29, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -9,19 +9,23 @@
  */
 package com.idega.cluster.cache.listener;
 
+import org.apache.log4j.Logger;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.event.CacheManagerEventListener;
+import com.idega.cluster.JxtaConfig;
 import com.idega.cluster.net.message.ApplicationMessenger;
 
 
 /**
  * 
- *  Last modified: $Date: 2007/01/20 21:53:43 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/05/02 14:56:19 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class ClusterCacheManagerListener implements CacheManagerEventListener {
+	
+	private final static Logger LOG =Logger.getLogger(ClusterCacheManagerListener.class.getName());
 	
 	public static ClusterCacheManagerListener getInstanceAddedToEhCache(ApplicationMessenger applicationMessenger) {
 		// cache manager is a singleton
@@ -35,7 +39,7 @@ public class ClusterCacheManagerListener implements CacheManagerEventListener {
 		}
 		else {
 			// something wrong, why is there already a listener? Do not replace it!
-			System.out.println("[ClusterCacheManagerListener] Could not add listener CacheManager, Listener already exist: " + 
+			LOG.error("[ClusterCacheManagerListener] Could not add listener CacheManager, Listener already exist: " + 
 					cacheManagerEventListener.toString());
 			return null;
 		}
