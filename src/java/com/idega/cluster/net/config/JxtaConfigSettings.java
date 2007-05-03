@@ -1,5 +1,5 @@
 /*
- * $Id: JxtaConfigSettings.java,v 1.3 2007/01/25 09:25:13 thomas Exp $
+ * $Id: JxtaConfigSettings.java,v 1.4 2007/05/03 16:56:49 thomas Exp $
  * Created on Jan 5, 2007
  *
  * Copyright (C) 2007 Idega Software hf. All Rights Reserved.
@@ -12,10 +12,10 @@ package com.idega.cluster.net.config;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/25 09:25:13 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/05/03 16:56:49 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class JxtaConfigSettings {
 	
@@ -39,7 +39,9 @@ public class JxtaConfigSettings {
 	public static final boolean USE_RENDEZVOUS_SERVICE = true;
 	
 	// in milliseconds (only used if rendezvous is enabled) 
-	public static final long WAIT_FOR_RENDEZVOUS = 4000;
+	public static final long WAIT_FOR_RENDEZVOUS = 2000;
+	
+	public static final int NUMBER_WORKERS = 40;
 	// not really important, in minutes
 	public static final long MESSAGE_STORE_TIME = 30;
 }
