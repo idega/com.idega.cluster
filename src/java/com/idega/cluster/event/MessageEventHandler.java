@@ -1,5 +1,5 @@
 /*
- * $Id: MessageEventHandler.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * $Id: MessageEventHandler.java,v 1.2 2007/05/05 14:36:08 thomas Exp $
  * Created on Jan 11, 2007
  *
  * Copyright (C) 2007 Idega Software hf. All Rights Reserved.
@@ -17,10 +17,10 @@ import com.idega.core.event.MethodCallEventHandler;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/12 15:42:36 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/05/05 14:36:08 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class MessageEventHandler implements MethodCallEventHandler {
 	
@@ -35,7 +35,9 @@ public class MessageEventHandler implements MethodCallEventHandler {
 	 */
 	public void handleEvent(MethodCallEvent methodCallEvent) {
 		// put a wrapper around the event
-		SimpleMessage simpleMessage = new SimpleMessageEvent(methodCallEvent);
+		// and change the sender to the application messenger ID !
+		String messageSender = applicationMessenger.getSender();
+		SimpleMessage simpleMessage = new SimpleMessageEvent(messageSender, methodCallEvent);
 		applicationMessenger.sendMessage(simpleMessage);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: SimpleMessageEvent.java,v 1.1 2007/01/12 15:42:36 thomas Exp $
+ * $Id: SimpleMessageEvent.java,v 1.2 2007/05/05 14:36:08 thomas Exp $
  * Created on Jan 11, 2007
  *
  * Copyright (C) 2007 Idega Software hf. All Rights Reserved.
@@ -17,17 +17,19 @@ import com.idega.core.event.MethodCallEvent;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/12 15:42:36 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/05/05 14:36:08 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SimpleMessageEvent extends SimpleMessageAdapter implements SimpleMessage {
 	
 	private MethodCallEvent methodCallEvent = null;
+	private String messageSender = null;
 	
-	public SimpleMessageEvent(MethodCallEvent methodCallEvent) {
+	public SimpleMessageEvent(String messageSender, MethodCallEvent methodCallEvent) {
 		this.methodCallEvent = methodCallEvent;
+		this.messageSender = messageSender;
 	}
 
 	/* (non-Javadoc)
@@ -55,7 +57,7 @@ public class SimpleMessageEvent extends SimpleMessageAdapter implements SimpleMe
 	 * @see com.idega.cluster.net.message.impl.SimpleMessageAdapter#getSender()
 	 */
 	public String getSender() {
-		return methodCallEvent.getSender();
+		return messageSender;
 	}
 
 	/* (non-Javadoc)
