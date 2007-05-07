@@ -1,5 +1,5 @@
 /*
- * $Id: JxtaConfigSettings.java,v 1.4 2007/05/03 16:56:49 thomas Exp $
+ * $Id: JxtaConfigSettings.java,v 1.5 2007/05/07 14:05:09 thomas Exp $
  * Created on Jan 5, 2007
  *
  * Copyright (C) 2007 Idega Software hf. All Rights Reserved.
@@ -12,12 +12,14 @@ package com.idega.cluster.net.config;
 
 /**
  * 
- *  Last modified: $Date: 2007/05/03 16:56:49 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/05/07 14:05:09 $ by $Author: thomas $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class JxtaConfigSettings {
+	
+	public static final String COM_IDEGA_CLUSTER_LOG4J_LEVEL = "log4jLevel_com.idega.cluster_net.jxta";
 	
 	//how to configure the JXTA client
 	
