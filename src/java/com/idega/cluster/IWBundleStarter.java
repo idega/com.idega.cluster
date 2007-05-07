@@ -1,5 +1,5 @@
 /*
- * $Id: IWBundleStarter.java,v 1.5 2007/01/25 09:25:14 thomas Exp $
+ * $Id: IWBundleStarter.java,v 1.6 2007/05/07 14:06:42 thomas Exp $
  * Created on 3.11.2004
  *
  * Copyright (C) 2004 Idega Software hf. All Rights Reserved.
@@ -10,9 +10,13 @@
 package com.idega.cluster;
 
 import java.io.File;
+import net.jxta.access.AccessService;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import com.idega.cluster.cache.listener.ClusterCacheManagerListener;
 import com.idega.cluster.cache.listener.ClusterCacheMapNotifier;
 import com.idega.cluster.event.MethodCallEventConnector;
+import com.idega.cluster.net.config.JxtaConfigSettings;
 import com.idega.cluster.net.config.JxtaPlatformConfigurator;
 import com.idega.cluster.net.message.ApplicationMessenger;
 import com.idega.cluster.net.message.ReceiveFilter;
@@ -24,22 +28,31 @@ import com.idega.cluster.net.pipe.ApplicationPeerGroupPipe;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWBundleStartable;
+import com.idega.idegaweb.IWMainApplication;
 
 
 
 
 /**
  * 
- *  Last modified: $Date: 2007/01/25 09:25:14 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/05/07 14:06:42 $ by $Author: thomas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">Tryggvi Larusson</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class IWBundleStarter implements IWBundleStartable {
 	
 	private ApplicationMessenger applicationMessenger = null;
 
 	public void start(IWBundle starterBundle) {
+		String levelAsString = starterBundle.getApplication().getSettings().getProperty( JxtaConfigSettings.COM_IDEGA_CLUSTER_LOG4J_LEVEL, Level.ERROR.toString());
+		Level level = Level.toLevel(levelAsString);
+		// set com.idega.cluster to error level
+	    Logger log = Logger.getLogger(IWBundleStarter.class.getPackage().getName());
+	    log.setLevel(level);
+	    // set net.jxta to error level
+	    Logger logJxta = Logger.getLogger("net.jxta");
+	    logJxta.setLevel(level);
 		if (true) {
 			// for production
 			startPrivateNet(starterBundle);
