@@ -1,5 +1,5 @@
 /*
- * $Id: ApplicationPeerGroupPipe.java,v 1.5 2007/04/30 13:17:39 thomas Exp $
+ * $Id: ApplicationPeerGroupPipe.java,v 1.6 2007/05/07 14:07:17 thomas Exp $
  * Created on Dec 21, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.log4j.Logger;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.endpoint.Message;
 import net.jxta.endpoint.MessageElement;
@@ -45,6 +46,7 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
 	
 	public static final String APPLICATION_PEER_GROUP_PIPE_NAME = "idegaWeb application group pipe";
 	
+	public static final Logger LOG = Logger.getLogger(ApplicationPeerGroupPipe.class.getName());
 
 	
 	private boolean active = false;
@@ -161,7 +163,9 @@ public class ApplicationPeerGroupPipe implements PipeMsgListener, ApplicationMes
             if (msg == null) {
                 return;
             }
-            //printMessageStats(msg, true);
+            if (LOG.isInfoEnabled()) {
+            	printMessageStats(msg, true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return;
