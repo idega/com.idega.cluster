@@ -9,6 +9,11 @@
   <shortDescription>add on for clustering</shortDescription>
   <issueTrackingUrl>http://issues.idega.is</issueTrackingUrl>
   <versions>
+    <version>
+      <id>3.1.0</id>
+      <name>3.1.0</name>
+      <tag>CLUSTER_3_1_0</tag>
+    </version>
   </versions>
   <branches/>
   <developers>
@@ -38,11 +43,12 @@
       <type>jar</type>
       <url>http://ehcache.sourceforge.net/</url>
       <properties>
-      <!-- already included in core bundle -->
+        <!-- already included in core bundle -->
+
         <idegaweb.bundle.include>false</idegaweb.bundle.include>
       </properties>
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>bundles</groupId>
       <artifactId>net.jxta</artifactId>
       <version>1.0</version>
@@ -52,7 +58,7 @@
         <eclipse.dependency>true</eclipse.dependency>
       </properties>
     </dependency>
-            <dependency>
+    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.8</version>
