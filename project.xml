@@ -4,7 +4,7 @@
   <extend>${base.project.dir}/base-dependencies.xml</extend>
   <name>idegaWeb Cluster</name>
   <artifactId>com.idega.cluster</artifactId>
-  <currentVersion>1.0-SNAPSHOT</currentVersion>
+  <currentVersion>3.1.0</currentVersion>
   <inceptionYear>2006</inceptionYear>
   <shortDescription>add on for clustering</shortDescription>
   <issueTrackingUrl>http://issues.idega.is</issueTrackingUrl>
@@ -45,7 +45,7 @@
         <dependency>
       <groupId>bundles</groupId>
       <artifactId>net.jxta</artifactId>
-      <version>SNAPSHOT</version>
+      <version>1.0</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>

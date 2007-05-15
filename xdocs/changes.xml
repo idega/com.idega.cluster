@@ -1,0 +1,17 @@
+<document>
+  <properties>
+    <title>Cluster support changes</title>
+    <author email="tryggvi@idega.com">Tryggvi Larusson</author>
+  </properties>
+  <body>
+  
+    <release version="3.1.0" date="2007-05-15">
+      <action dev="tryggvil" type="update">
+      	Releasing first tested version of module.
+      	Built in support for messaging built on jxta.
+      	Built in messaging for IWCacheManager2, IWCacheManager, Slide etc.
+      </action>
+    </release>
+    
+  </body>
+</document>
