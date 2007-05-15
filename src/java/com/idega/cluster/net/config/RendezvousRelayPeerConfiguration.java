@@ -1,5 +1,5 @@
 /*
- * $Id: RendezvousRelayPeerConfiguration.java,v 1.2 2007/01/26 07:15:01 thomas Exp $
+ * $Id: RendezvousRelayPeerConfiguration.java,v 1.3 2007/05/15 22:10:17 tryggvil Exp $
  * Created on Dec 27, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -30,12 +30,12 @@ import com.idega.util.FileUtil;
 
 /**
  * 
- *  Last modified: $Date: 2007/01/26 07:15:01 $ by $Author: thomas $
+ *  Last modified: $Date: 2007/05/15 22:10:17 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:thomas@idega.com">thomas</a>
  * @author  danielbrookshier
  * 
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class RendezvousRelayPeerConfiguration {
 
@@ -140,7 +140,7 @@ public class RendezvousRelayPeerConfiguration {
             LOG.info(" getRelayOutgoingMaximum:"+configurator.getRelayOutgoingMaximum());
             LOG.info(" getRelayQueueSize:"+configurator.getRelayQueueSize());
             LOG.info(" getRelaysBootstrapAddress:"+configurator.getRelaysBootstrapAddress());
-            // why isn´t there are method? LOG.info(" getRelaysDiscovery:"+configurator.getRelaysDiscovery());
+            // why isn't there are method? LOG.info(" getRelaysDiscovery:"+configurator.getRelaysDiscovery());
             LOG.info(" getRendezVousAutoStart:"+configurator.getRendezVousAutoStart());
             LOG.info(" getRendezVousBootstrapAddress:"+configurator.getRendezVousBootstrapAddress());
             LOG.info(" getRootCertificate:"+configurator.getRootCertificate());
